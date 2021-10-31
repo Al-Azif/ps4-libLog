@@ -1,0 +1,19 @@
+# IDE config
+.vscode
+
+# Testing Data
+flawfinder.log
+cppcheck.log
+pvs-studio.log
+strace_out
+project.log
+valgrind.log
+test.log
+test.bin
+
+# Build artifacts
+main
+build/
+libLog.prx
+libLog_stub.so
+*.zip

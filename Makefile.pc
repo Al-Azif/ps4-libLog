@@ -1,0 +1,58 @@
+CC = clang
+
+# Paths
+SRC_PATH = src
+BUILD_PATH = build
+BIN_PATH = $(BUILD_PATH)/bin
+
+# Executable
+BIN_NAME = main
+
+# Code Lists #
+# Find all source files in the source directory, sorted by most recently modified
+SOURCES = $(shell find $(SRC_PATH) -name '*.c' | sort -k 1nr | cut -f2-)
+# Set the object file names, with the source directory stripped from the path, and the build path prepended in its place
+OBJECTS = $(SOURCES:$(SRC_PATH)/%.c=$(BUILD_PATH)/%.o)
+
+# Flags #
+CFLAGS = -O0 -g -std=c99 -D_DEFAULT_SOURCE -D__LIBLOG_PC__ -Wall -Wextra -Wpedantic -Werror
+INCLUDES = -Iinclude -I/usr/local/include
+
+# Check for valgrind flag
+ifeq ($(__VALGRIND__),true)
+CFLAGS += -D__VALGRIND__
+endif
+
+.PHONY: all clean
+.DEFAULT_GOAL	:= all
+
+# Checks the executable and symlinks to the output
+.PHONY: all
+all: $(BIN_PATH) $(BIN_PATH)/$(BIN_NAME)
+	@echo "Making symlink: $(BIN_NAME) -> $<"
+	@$(RM) $(BIN_NAME)
+	@ln -s $(BIN_PATH)/$(BIN_NAME) $(BIN_NAME)
+
+# Creation of the executable
+$(BIN_PATH)/$(BIN_NAME): $(OBJECTS)
+	@echo "Linking: $@"
+	$(CC) $(OBJECTS) -o $@
+
+# Source file rules #
+# After the first compilation they will be joined with the rules from the dependency files to provide header dependencies
+$(BUILD_PATH)/%.o: $(SRC_PATH)/%.c
+	@echo "Compiling: $< -> $@"
+	$(CC) $(CFLAGS) $(INCLUDES) -MP -MMD -c $< -o $@
+
+$(BIN_PATH):
+	@echo "Creating directories"
+	@mkdir -p $(dir $(OBJECTS))
+	@mkdir -p $(BIN_PATH)
+
+.PHONY: clean
+clean:
+	@echo "Deleting $(BIN_NAME) symlink"
+	@$(RM) $(BIN_NAME)
+	@echo "Deleting directories"
+	@$(RM) -r $(BUILD_PATH)
+	@$(RM) -r $(BIN_PATH)
