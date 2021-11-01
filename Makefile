@@ -8,16 +8,22 @@ LIBS					:= -lSceLibcInternal -lkernel
 INCLUDES      := -Iinclude
 
 # Additional compile flags
-ERRORFLAGS    := -Wall -Wextra -Werror
-OTHERFLAGS    :=
+#   ERRORFLAGS and OTHERFLAGS will be included in C and C++ flags
+#   OTHERCXXFLAGS will only be included in C++ flags
+ERRORFLAGS    := -Wall -Wextra -Wpedantic -Werror
+OTHERFLAGS    := -O3 -std=c99 -D_DEFAULT_SOURCE
+OTHERCXXFLAGS := -std=c++11
 
-# Compiler options. You likely won't need to touch these.
+# -----------------------------------------------------------------------------
+# Do not edit below this line unless you know what you are doing
+# -----------------------------------------------------------------------------
+
 TOOLCHAIN			:= $(OO_PS4_TOOLCHAIN)
 ODIR					:= build
 SDIR					:= src
 EXTRAFLAGS    := $(INCLUDES) $(ERRORFLAGS) $(OTHERFLAGS)
-CFLAGS				:= -cc1 -triple x86_64-pc-freebsd-elf -munwind-tables -fuse-init-array -debug-info-kind=limited -debugger-tuning=gdb -emit-obj -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include $(EXTRAFLAGS)
-CXXFLAGS			:= $(CFLAGS) -isystem $(TOOLCHAIN)/include/c++/v1
+CFLAGS				:= -cc1 -triple x86_64-pc-freebsd-elf -munwind-tables -fuse-init-array -emit-obj -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include $(EXTRAFLAGS)
+CXXFLAGS			:= $(CFLAGS) -isystem $(TOOLCHAIN)/include/c++/v1 $(OTHERCXXFLAGS)
 LFLAGS				:= -m elf_x86_64 -pie --script $(TOOLCHAIN)/link.x --eh-frame-hdr -L$(TOOLCHAIN)/lib $(LIBS) $(TOOLCHAIN)/lib/crtlib.o
 
 CFILES				:= $(wildcard $(SDIR)/*.c)
@@ -66,7 +72,7 @@ $(ODIR)/%.o: $(SDIR)/%.s
 	$(AS) -triple=x86_64-pc-freebsd-elf --filetype=obj -o $@ $<
 
 $(ODIR)/%.o.stub: $(SDIR)/%.cpp
-	$(CXX) -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include -isystem $(TOOLCHAIN)/include/c++/v1 $(EXTRAFLAGS) -o $@ $<
+	$(CXX) -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include -isystem $(TOOLCHAIN)/include/c++/v1 $(EXTRAFLAGS) $(OTHERCXXFLAGS) -o $@ $<
 
 $(ODIR)/%.o.stub: $(SDIR)/%.c
 	$(CC) -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include $(EXTRAFLAGS) -o $@ $<

@@ -48,5 +48,7 @@ int main() {
 
   return 0;
 }
-
+#else
+// ISO C requires a translation unit to contain at least one declaration
+int empty_declaration;
 #endif
