@@ -52,7 +52,11 @@ static const char *_formatOutput(enum LogLevels p_LogLevel, enum PrintTypes p_Pr
     return NULL;
   }
 
-  size_t s_MessageSize = vsnprintf((void *)NULL, 0, p_Format, p_Args) + 1;
+  size_t s_MessageSize = vsnprintf(NULL, 0, p_Format, p_Args);
+  if (s_MessageSize <= 0) {
+    return NULL;
+  }
+  s_MessageSize++; // Null terminator
 
   char *s_Message = calloc(s_MessageSize, sizeof(char));
   if (s_Message == NULL) {
@@ -106,7 +110,12 @@ static const char *_formatOutput(enum LogLevels p_LogLevel, enum PrintTypes p_Pr
     s_LevelResetColor = "\0";
   }
 
-  size_t s_OutputSize = snprintf((void *)NULL, 0, "%s[%-5s] %s:%d: %s%s\n", s_LevelColor, s_LevelString, p_File, p_Line, s_Message, s_LevelResetColor) + 1;
+  size_t s_OutputSize = snprintf(NULL, 0, "%s[%-5s] %s:%d: %s%s\n", s_LevelColor, s_LevelString, p_File, p_Line, s_Message, s_LevelResetColor);
+  if (s_OutputSize <= 0) {
+    return NULL;
+  }
+  s_OutputSize++; // Null terminator
+
   char *s_Output = calloc(s_OutputSize, sizeof(char));
   if (s_Output == NULL) {
     free((void *)s_Message);
