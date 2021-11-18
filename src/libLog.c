@@ -22,8 +22,6 @@
 
 #include "libLog.h"
 
-#define LOGGER_MAX_BUFFER 0x500
-
 #define KNRM "\x1B[0m"
 #define KRED "\x1B[31m"
 #define KGRN "\x1B[32m"
@@ -54,12 +52,14 @@ static const char *_formatOutput(enum LogLevels p_LogLevel, enum PrintTypes p_Pr
     return NULL;
   }
 
-  char *s_Message = calloc(LOGGER_MAX_BUFFER + 1, sizeof(char));
+  size_t s_MessageSize = vsnprintf((void *)NULL, 0, p_Format, p_Args) + 1;
+
+  char *s_Message = calloc(s_MessageSize, sizeof(char));
   if (s_Message == NULL) {
     return NULL;
   }
 
-  vsnprintf(s_Message, LOGGER_MAX_BUFFER, p_Format, p_Args);
+  vsnprintf(s_Message, s_MessageSize, p_Format, p_Args);
 
   if (!p_Meta) {
     return s_Message;
@@ -106,13 +106,14 @@ static const char *_formatOutput(enum LogLevels p_LogLevel, enum PrintTypes p_Pr
     s_LevelResetColor = "\0";
   }
 
-  char *s_Output = calloc(LOGGER_MAX_BUFFER + 1, sizeof(char));
+  size_t s_OutputSize = snprintf((void *)NULL, 0, "%s[%-5s] %s:%d: %s%s\n", s_LevelColor, s_LevelString, p_File, p_Line, s_Message, s_LevelResetColor) + 1;
+  char *s_Output = calloc(s_OutputSize, sizeof(char));
   if (s_Output == NULL) {
     free((void *)s_Message);
     return NULL;
   }
 
-  snprintf(s_Output, LOGGER_MAX_BUFFER, "%s[%-5s] %s:%d: %s%s\n", s_LevelColor, s_LevelString, p_File, p_Line, s_Message, s_LevelResetColor);
+  snprintf(s_Output, s_OutputSize, "%s[%-5s] %s:%d: %s%s\n", s_LevelColor, s_LevelString, p_File, p_Line, s_Message, s_LevelResetColor);
   free((void *)s_Message);
 
   return s_Output;
@@ -329,7 +330,7 @@ static void _send_socket(const char *s_Buffer) {
       .sin_port = htons(g_SocketLogPort),
   };
 
-  sendto(g_Socket, s_Buffer, strnlen(s_Buffer, LOGGER_MAX_BUFFER), 0, (struct sockaddr *)&s_Servaddr, sizeof(s_Servaddr));
+  sendto(g_Socket, s_Buffer, strlen(s_Buffer), 0, (struct sockaddr *)&s_Servaddr, sizeof(s_Servaddr));
 }
 
 static void _write_file(const char *s_Buffer) {
