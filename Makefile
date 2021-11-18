@@ -34,9 +34,11 @@ STUBOBJS			:= $(patsubst $(SDIR)/%.c, $(ODIR)/%.o.stub, $(CFILES)) $(patsubst $(
 
 TARGET				= $(PROJECTNAME).prx
 TARGETSTUB		= $(PROJECTNAME)_stub.so
+TARGETSTATIC	= $(PROJECTNAME).a
 
 UNAME_S				:= $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
+	AR					:= llvm-ar
 	AS					:= llvm-mc
 	CC					:= clang
 	CXX					:= clang++
@@ -44,6 +46,7 @@ ifeq ($(UNAME_S),Linux)
 	CDIR				:= linux
 endif
 ifeq ($(UNAME_S),Darwin)
+	AR					:= /usr/local/opt/llvm/bin/llvm-ar
 	AS					:= /usr/local/opt/llvm/bin/llvm-mc
 	CC					:= /usr/local/opt/llvm/bin/clang
 	CXX					:= /usr/local/opt/llvm/bin/clang++
@@ -57,6 +60,10 @@ $(TARGET): $(ODIR) $(OBJS)
 	$(TOOLCHAIN)/bin/$(CDIR)/create-lib -in=$(ODIR)/$(PROJECTNAME).elf -out=$(ODIR)/$(PROJECTNAME).oelf --paid 0x3800000000000011
 	@mv $(ODIR)/$(PROJECTNAME).prx $(TARGET)
 	@echo Built PRX successfully!
+
+$(TARGETSTATIC): $(ODIR) $(OBJS)
+	$(AR) rcs $(TARGETSTATIC) $(ODIR)/*.o
+	@echo Built static library successfully!
 
 $(TARGETSTUB): $(ODIR) $(STUBOBJS)
 	$(CXX) $(ODIR)/*.o.stub -o $(TARGETSTUB) -target x86_64-pc-linux-gnu -shared -fuse-ld=lld -ffreestanding -nostdlib -fno-builtin -L$(TOOLCHAIN)/lib $(LIBS)
@@ -85,12 +92,12 @@ $(ODIR):
 .PHONY: all clean install
 .DEFAULT_GOAL	:= all
 
-all: $(TARGET) $(TARGETSTUB)
+all: $(TARGET) $(TARGETSTATIC) $(TARGETSTUB)
 
 clean:
 	@echo Cleaning up...
-	@rm -rf $(TARGET) $(TARGETSTUB) $(ODIR)
+	@rm -rf $(TARGET) $(TARGETSTATIC) $(TARGETSTUB) $(ODIR)
 
 install:
 	@echo Installing...
-	@yes | cp -f $(TARGETSTUB) $(OO_PS4_TOOLCHAIN)/lib/$(TARGETSTUB) 2>/dev/null && echo Installed!|| echo Failed to install, is it built?
+	@yes | cp -f $(TARGETSTATIC) $(OO_PS4_TOOLCHAIN)/lib/$(TARGETSTATIC) 2>/dev/null && echo Installed!|| echo Failed to install, is it built?

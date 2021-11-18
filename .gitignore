@@ -16,4 +16,5 @@ main
 build/
 libLog.prx
 libLog_stub.so
+libLog.a
 *.zip
