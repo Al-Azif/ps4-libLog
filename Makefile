@@ -22,7 +22,7 @@ TOOLCHAIN			:= $(OO_PS4_TOOLCHAIN)
 ODIR					:= build
 SDIR					:= src
 EXTRAFLAGS    := $(INCLUDES) $(ERRORFLAGS) $(OTHERFLAGS)
-CFLAGS				:= -cc1 -triple x86_64-pc-freebsd-elf -munwind-tables -fuse-init-array -emit-obj -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include $(EXTRAFLAGS)
+CFLAGS				:= --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include $(EXTRAFLAGS)
 CXXFLAGS			:= $(CFLAGS) -isystem $(TOOLCHAIN)/include/c++/v1 $(OTHERCXXFLAGS)
 LFLAGS				:= -m elf_x86_64 -pie --script $(TOOLCHAIN)/link.x --eh-frame-hdr -L$(TOOLCHAIN)/lib $(LIBS) $(TOOLCHAIN)/lib/crtlib.o
 
@@ -57,8 +57,7 @@ endif
 # Make rules
 $(TARGET): $(ODIR) $(OBJS)
 	$(LD) $(ODIR)/*.o -o $(ODIR)/$(PROJECTNAME).elf $(LFLAGS)
-	$(TOOLCHAIN)/bin/$(CDIR)/create-lib -in=$(ODIR)/$(PROJECTNAME).elf -out=$(ODIR)/$(PROJECTNAME).oelf --paid 0x3800000000000011
-	@mv $(ODIR)/$(PROJECTNAME).prx $(TARGET)
+	$(TOOLCHAIN)/bin/$(CDIR)/create-fself -in=$(ODIR)/$(PROJECTNAME).elf -out=$(ODIR)/$(PROJECTNAME).oelf --lib=$(TARGET) --paid 0x3800000000000011
 	@echo Built PRX successfully!
 
 $(TARGETSTATIC): $(ODIR) $(OBJS)
