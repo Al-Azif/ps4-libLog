@@ -39,20 +39,20 @@ TARGETSTATIC  = $(PROJECTNAME).a
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-    AR        := llvm-ar
-    AS        := llvm-mc
-    CC        := clang
-    CCX       := clang++
-    LD        := ld.lld
-    CDIR      := linux
+  AR        := llvm-ar
+  AS        := llvm-mc
+  CC        := clang
+  CCX       := clang++
+  LD        := ld.lld
+  CDIR      := linux
 endif
 ifeq ($(UNAME_S),Darwin)
-    AR        := /usr/local/opt/llvm/bin/llvm-ar
-    AS        := /usr/local/opt/llvm/bin/llvm-mc
-    CC        := /usr/local/opt/llvm/bin/clang
-    CCX       := /usr/local/opt/llvm/bin/clang++
-    LD        := /usr/local/opt/llvm/bin/ld.lld
-    CDIR      := macos
+  AR        := /usr/local/opt/llvm/bin/llvm-ar
+  AS        := /usr/local/opt/llvm/bin/llvm-mc
+  CC        := /usr/local/opt/llvm/bin/clang
+  CCX       := /usr/local/opt/llvm/bin/clang++
+  LD        := /usr/local/opt/llvm/bin/ld.lld
+  CDIR      := macos
 endif
 
 # Make rules
