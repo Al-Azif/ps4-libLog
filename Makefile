@@ -8,11 +8,8 @@ LIBS          := -lSceLibcInternal -lkernel
 INCLUDES      := -Iinclude
 
 # Additional compile flags
-#   ERRORFLAGS and OTHERFLAGS will be included in C and C++ flags
-#   OTHERCXXFLAGS will only be included in C++ flags
 ERRORFLAGS    := -Wall -Wextra -Wpedantic -Werror
 OTHERFLAGS    := -O3 -std=c99 -D_DEFAULT_SOURCE
-OTHERCXXFLAGS := -std=c++11
 
 # -----------------------------------------------------------------------------
 # Do not edit below this line unless you know what you are doing
@@ -23,26 +20,22 @@ ODIR          := build
 SDIR          := src
 EXTRAFLAGS    := $(INCLUDES) $(ERRORFLAGS) $(OTHERFLAGS)
 CFLAGS        := --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include $(EXTRAFLAGS)
-CXXFLAGS      := $(CFLAGS) -isystem $(TOOLCHAIN)/include/c++/v1 $(OTHERCXXFLAGS)
 LFLAGS        := -m elf_x86_64 -pie --script $(TOOLCHAIN)/link.x --eh-frame-hdr -L$(TOOLCHAIN)/lib $(LIBS) $(TOOLCHAIN)/lib/crtlib.o
 
 CFILES        := $(wildcard $(SDIR)/*.c)
-CPPFILES      := $(wildcard $(SDIR)/*.cpp)
 ASMFILES      := $(wildcard $(SDIR)/*.s)
-OBJS          := $(patsubst $(SDIR)/%.s, $(ODIR)/%.o, $(ASMFILES)) $(patsubst $(SDIR)/%.c, $(ODIR)/%.o, $(CFILES)) $(patsubst $(SDIR)/%.cpp, $(ODIR)/%.o, $(CPPFILES))
-STUBOBJS      := $(patsubst $(SDIR)/%.c, $(ODIR)/%.o.stub, $(CFILES)) $(patsubst $(SDIR)/%.cpp, $(ODIR)/%.o.stub, $(CPPFILES))
+OBJS          := $(patsubst $(SDIR)/%.s, $(ODIR)/%.o, $(ASMFILES)) $(patsubst $(SDIR)/%.c, $(ODIR)/%.o, $(CFILES))
+STUBOBJS      := $(patsubst $(SDIR)/%.c, $(ODIR)/%.o.stub, $(CFILES))
 
 TARGET        = $(PROJECTNAME).prx
 TARGETSTUB    = $(PROJECTNAME)_stub.so
 TARGETSTATIC  = $(PROJECTNAME).a
-
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	AR        := llvm-ar
 	AS        := llvm-mc
 	CC        := clang
-	CXX       := clang++
 	LD        := ld.lld
 	CDIR      := linux
 endif
@@ -50,7 +43,6 @@ ifeq ($(UNAME_S),Darwin)
 	AR        := /usr/local/opt/llvm/bin/llvm-ar
 	AS        := /usr/local/opt/llvm/bin/llvm-mc
 	CC        := /usr/local/opt/llvm/bin/clang
-	CXX       := /usr/local/opt/llvm/bin/clang++
 	LD        := /usr/local/opt/llvm/bin/ld.lld
 	CDIR      := macos
 endif
@@ -66,20 +58,14 @@ $(TARGETSTATIC): $(ODIR) $(OBJS)
 	@echo Built static library successfully!
 
 $(TARGETSTUB): $(ODIR) $(STUBOBJS)
-	$(CXX) $(ODIR)/*.o.stub -o $(TARGETSTUB) -target x86_64-pc-linux-gnu -shared -fuse-ld=lld -ffreestanding -nostdlib -fno-builtin -L$(TOOLCHAIN)/lib $(LIBS)
+	$(CC) $(ODIR)/*.o.stub -o $(TARGETSTUB) -target x86_64-pc-linux-gnu -shared -fuse-ld=lld -ffreestanding -nostdlib -fno-builtin -L$(TOOLCHAIN)/lib $(LIBS)
 	@echo Built stub successfully!
-
-$(ODIR)/%.o: $(SDIR)/%.cpp
-	$(CXX) $(CXXFLAGS) -o $@ $<
 
 $(ODIR)/%.o: $(SDIR)/%.c
 	$(CC) $(CFLAGS) -o $@ $<
 
 $(ODIR)/%.o: $(SDIR)/%.s
 	$(AS) -triple=x86_64-pc-freebsd-elf --filetype=obj -o $@ $<
-
-$(ODIR)/%.o.stub: $(SDIR)/%.cpp
-	$(CXX) -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include -isystem $(TOOLCHAIN)/include/c++/v1 $(EXTRAFLAGS) $(OTHERCXXFLAGS) -o $@ $<
 
 $(ODIR)/%.o.stub: $(SDIR)/%.c
 	$(CC) -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include $(EXTRAFLAGS) -o $@ $<
