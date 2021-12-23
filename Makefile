@@ -39,55 +39,55 @@ TARGETSTATIC  = $(PROJECTNAME).a
 
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
-  AR        := llvm-ar
-  AS        := llvm-mc
-  CC        := clang
-  CCX       := clang++
-  LD        := ld.lld
-  CDIR      := linux
+	AR        := llvm-ar
+	AS        := llvm-mc
+	CC        := clang
+	CXX       := clang++
+	LD        := ld.lld
+	CDIR      := linux
 endif
 ifeq ($(UNAME_S),Darwin)
-  AR        := /usr/local/opt/llvm/bin/llvm-ar
-  AS        := /usr/local/opt/llvm/bin/llvm-mc
-  CC        := /usr/local/opt/llvm/bin/clang
-  CCX       := /usr/local/opt/llvm/bin/clang++
-  LD        := /usr/local/opt/llvm/bin/ld.lld
-  CDIR      := macos
+	AR        := /usr/local/opt/llvm/bin/llvm-ar
+	AS        := /usr/local/opt/llvm/bin/llvm-mc
+	CC        := /usr/local/opt/llvm/bin/clang
+	CXX       := /usr/local/opt/llvm/bin/clang++
+	LD        := /usr/local/opt/llvm/bin/ld.lld
+	CDIR      := macos
 endif
 
 # Make rules
 $(TARGET): $(ODIR) $(OBJS)
-  $(LD) $(ODIR)/*.o -o $(ODIR)/$(PROJECTNAME).elf $(LFLAGS)
-  $(TOOLCHAIN)/bin/$(CDIR)/create-fself -in=$(ODIR)/$(PROJECTNAME).elf -out=$(ODIR)/$(PROJECTNAME).oelf --lib=$(TARGET) --paid 0x3800000000000011
-  @echo Built PRX successfully!
+	$(LD) $(ODIR)/*.o -o $(ODIR)/$(PROJECTNAME).elf $(LFLAGS)
+	$(TOOLCHAIN)/bin/$(CDIR)/create-fself -in=$(ODIR)/$(PROJECTNAME).elf -out=$(ODIR)/$(PROJECTNAME).oelf --lib=$(TARGET) --paid 0x3800000000000011
+	@echo Built PRX successfully!
 
 $(TARGETSTATIC): $(ODIR) $(OBJS)
-  $(AR) rcs $(TARGETSTATIC) $(ODIR)/*.o
-  @echo Built static library successfully!
+	$(AR) rcs $(TARGETSTATIC) $(ODIR)/*.o
+	@echo Built static library successfully!
 
 $(TARGETSTUB): $(ODIR) $(STUBOBJS)
-  $(CXX) $(ODIR)/*.o.stub -o $(TARGETSTUB) -target x86_64-pc-linux-gnu -shared -fuse-ld=lld -ffreestanding -nostdlib -fno-builtin -L$(TOOLCHAIN)/lib $(LIBS)
-  @echo Built stub successfully!
+	$(CXX) $(ODIR)/*.o.stub -o $(TARGETSTUB) -target x86_64-pc-linux-gnu -shared -fuse-ld=lld -ffreestanding -nostdlib -fno-builtin -L$(TOOLCHAIN)/lib $(LIBS)
+	@echo Built stub successfully!
 
 $(ODIR)/%.o: $(SDIR)/%.cpp
-  $(CXX) $(CXXFLAGS) -o $@ $<
+	$(CXX) $(CXXFLAGS) -o $@ $<
 
 $(ODIR)/%.o: $(SDIR)/%.c
-  $(CC) $(CFLAGS) -o $@ $<
+	$(CC) $(CFLAGS) -o $@ $<
 
 $(ODIR)/%.o: $(SDIR)/%.s
-  $(AS) -triple=x86_64-pc-freebsd-elf --filetype=obj -o $@ $<
+	$(AS) -triple=x86_64-pc-freebsd-elf --filetype=obj -o $@ $<
 
 $(ODIR)/%.o.stub: $(SDIR)/%.cpp
-  $(CXX) -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include -isystem $(TOOLCHAIN)/include/c++/v1 $(EXTRAFLAGS) $(OTHERCXXFLAGS) -o $@ $<
+	$(CXX) -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include -isystem $(TOOLCHAIN)/include/c++/v1 $(EXTRAFLAGS) $(OTHERCXXFLAGS) -o $@ $<
 
 $(ODIR)/%.o.stub: $(SDIR)/%.c
-  $(CC) -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include $(EXTRAFLAGS) -o $@ $<
+	$(CC) -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include $(EXTRAFLAGS) -o $@ $<
 
 $(ODIR):
-  @echo Starting build...
-  @echo Creating build directory...
-  @mkdir $@
+	@echo Starting build...
+	@echo Creating build directory...
+	@mkdir $@
 
 .PHONY: all clean install
 .DEFAULT_GOAL := all
@@ -95,9 +95,9 @@ $(ODIR):
 all: $(TARGET) $(TARGETSTATIC) $(TARGETSTUB)
 
 clean:
-  @echo Cleaning up...
-  @rm -rf $(TARGET) $(TARGETSTATIC) $(TARGETSTUB) $(ODIR)
+	@echo Cleaning up...
+	@rm -rf $(TARGET) $(TARGETSTATIC) $(TARGETSTUB) $(ODIR)
 
 install:
-  @echo Installing...
-  @yes | cp -f $(TARGETSTATIC) $(OO_PS4_TOOLCHAIN)/lib/$(TARGETSTATIC) 2>/dev/null && echo Installed!|| echo Failed to install, is it built?
+	@echo Installing...
+	@yes | cp -f $(TARGETSTATIC) $(OO_PS4_TOOLCHAIN)/lib/$(TARGETSTATIC) 2>/dev/null && echo Installed!|| echo Failed to install, is it built?
