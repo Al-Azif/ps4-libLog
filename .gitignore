@@ -12,7 +12,7 @@ test.log
 test.bin
 
 # Build artifacts
-main
+libLog
 build/
 libLog.prx
 libLog_stub.so

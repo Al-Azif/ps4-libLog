@@ -1,58 +1,59 @@
-CC = clang
+# Binary name
+PROJECTNAME   := libLog
 
-# Paths
-SRC_PATH = src
-BUILD_PATH = build
-BIN_PATH = $(BUILD_PATH)/bin
+# Directorys to include
+INCLUDES      := -Iinclude -I/usr/local/include
+LIBS          := # Not currently used
 
-# Executable
-BIN_NAME = main
+# Additional compile flags
+ERRORFLAGS    := -Wall -Wextra -Wpedantic -Werror
+OTHERFLAGS    := -O0 -g -std=c99 -c -D_DEFAULT_SOURCE -D__LIBLOG_PC__
 
-# Code Lists #
-# Find all source files in the source directory, sorted by most recently modified
-SOURCES = $(shell find $(SRC_PATH) -name '*.c' | sort -k 1nr | cut -f2-)
-# Set the object file names, with the source directory stripped from the path, and the build path prepended in its place
-OBJECTS = $(SOURCES:$(SRC_PATH)/%.c=$(BUILD_PATH)/%.o)
+# -----------------------------------------------------------------------------
+# Do not edit below this line unless you know what you are doing
+# -----------------------------------------------------------------------------
 
-# Flags #
-CFLAGS = -O0 -g -std=c99 -D_DEFAULT_SOURCE -D__LIBLOG_PC__ -Wall -Wextra -Wpedantic -Werror
-INCLUDES = -Iinclude -I/usr/local/include
+ODIR          := build
+SDIR          := src
+CFLAGS        := $(INCLUDES) $(ERRORFLAGS) $(OTHERFLAGS)
 
 # Check for valgrind flag
 ifeq ($(__VALGRIND__),true)
 CFLAGS += -D__VALGRIND__
 endif
 
+LFLAGS        := $(LIBS) # Not currently used
+
+CFILES        := $(wildcard $(SDIR)/*.c)
+OBJS          := $(patsubst $(SDIR)/%.c, $(ODIR)/%.o, $(CFILES))
+
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+	CC        := clang
+	LD        := ld.lld # Not currently used
+endif
+ifeq ($(UNAME_S),Darwin)
+	CC        := /usr/local/opt/llvm/bin/clang
+	LD        := /usr/local/opt/llvm/bin/ld.lld # Not currently used
+endif
+
+# Make rules
+$(PROJECTNAME): $(ODIR) $(OBJS)
+	$(CC) $(ODIR)/*.o -o $(PROJECTNAME)
+	@echo Built binary successfully!
+
+$(ODIR)/%.o: $(SDIR)/%.c
+	$(CC) $(CFLAGS) -o $@ $<
+
+$(ODIR):
+	@echo Creating build directory...
+	@mkdir $@
+
 .PHONY: all clean
-.DEFAULT_GOAL	:= all
+.DEFAULT_GOAL := all
 
-# Checks the executable and symlinks to the output
-.PHONY: all
-all: $(BIN_PATH) $(BIN_PATH)/$(BIN_NAME)
-	@echo "Making symlink: $(BIN_NAME) -> $<"
-	@$(RM) $(BIN_NAME)
-	@ln -s $(BIN_PATH)/$(BIN_NAME) $(BIN_NAME)
+all: $(PROJECTNAME)
 
-# Creation of the executable
-$(BIN_PATH)/$(BIN_NAME): $(OBJECTS)
-	@echo "Linking: $@"
-	$(CC) $(OBJECTS) -o $@
-
-# Source file rules #
-# After the first compilation they will be joined with the rules from the dependency files to provide header dependencies
-$(BUILD_PATH)/%.o: $(SRC_PATH)/%.c
-	@echo "Compiling: $< -> $@"
-	$(CC) $(CFLAGS) $(INCLUDES) -MP -MMD -c $< -o $@
-
-$(BIN_PATH):
-	@echo "Creating directories"
-	@mkdir -p $(dir $(OBJECTS))
-	@mkdir -p $(BIN_PATH)
-
-.PHONY: clean
 clean:
-	@echo "Deleting $(BIN_NAME) symlink"
-	@$(RM) $(BIN_NAME)
-	@echo "Deleting directories"
-	@$(RM) -r $(BUILD_PATH)
-	@$(RM) -r $(BIN_PATH)
+	@echo Cleaning up...
+	@rm -rf $(PROJECTNAME) $(ODIR)

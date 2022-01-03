@@ -26,7 +26,6 @@ Features include:
 
 ## Road to 1.0.0
 
-- [ ] Change `Makefile.pc` to use similar structure/options/flags to `Makefile` so PC side test is closer to actual output
 - [ ] Recreate C++ stream bindings
 - [ ] Document everything w/ examples
 - [ ] Release

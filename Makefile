@@ -71,7 +71,6 @@ $(ODIR)/%.o.stub: $(SDIR)/%.c
 	$(CC) -target x86_64-pc-linux-gnu -ffreestanding -nostdlib -fno-builtin -fPIC -c -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include $(EXTRAFLAGS) -o $@ $<
 
 $(ODIR):
-	@echo Starting build...
 	@echo Creating build directory...
 	@mkdir $@
 
