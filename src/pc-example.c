@@ -8,7 +8,7 @@
 
 #include <string.h>
 
-#include "libLog_stub.h"
+#include "libLog.h"
 
 int main() {
   char test[0x20];
@@ -35,12 +35,14 @@ int main() {
 
     logFileOpen("./test.log");
     logFile(LL_Error, "This is a logFile call");
+    logFile(LL_Error, "This is a logFile call #%i", 2);
     logFileUnformatted(LL_Error, "This is a logFileUnformatted call\n");
+    logFileUnformatted(LL_Error, "This is a logFileUnformatted call #%i\n", 2);
     logFileHexdump(LL_Error, test, sizeof(test));
     logFileHexdumpUnformatted(LL_Error, test, sizeof(test));
     logFileClose();
 
-    logSocketBindump(LL_Error, "192.168.1.4", 9022, test, sizeof(test));
+    logSocketBindump(LL_Error, "192.168.1.4", 9024, test, sizeof(test));
     logFileBindump(LL_Error, "./test.bin", test, sizeof(test));
 #ifdef __VALGRIND__
   }

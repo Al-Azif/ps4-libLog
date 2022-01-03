@@ -26,13 +26,15 @@ Features include:
 
 ## Road to 1.0.0
 
+- [ ] Change `Makefile.pc` to use similar structure/options/flags to `Makefile` so PC side test is closer to actual output
 - [ ] Recreate C++ stream bindings
 - [ ] Document everything w/ examples
 - [ ] Release
 
 ## 1.0.0+ Plans
 
-- [ ] Automatic log rotation
+- [ ] System for callbacks to log multiple predefined logs with one log function call
+- [ ] Automatic log rotation for logging to files
 
 [//]: #
   [OpenOrbis Toolchain]: <https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain>

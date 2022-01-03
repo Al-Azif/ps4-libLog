@@ -47,12 +47,19 @@ uint16_t g_SocketLogPort = 0;
 const char *g_LogFileName = "";
 FILE *g_LogFilePointer;
 
+static const char* VERSION __attribute__((used)) = "libLog v0.9.2";
+static const char* LICENSE __attribute__((used)) = "LGPL-3.0";
+static const char* URL __attribute__((used)) = "https://github.com/Al-Azif/ps4-libLog";
+
 static const char *_formatOutput(enum LogLevels p_LogLevel, enum PrintTypes p_PrintType, bool p_Meta, const char *p_File, int p_Line, const char *p_Format, va_list p_Args) {
   if (p_File == NULL || p_Format == NULL) {
     return NULL;
   }
 
-  size_t s_MessageSize = vsnprintf(NULL, 0, p_Format, p_Args);
+  va_list s_ArgSize;
+  va_copy(s_ArgSize, p_Args);
+  size_t s_MessageSize = vsnprintf(NULL, 0, p_Format, s_ArgSize);
+  va_end(s_ArgSize);
   if (s_MessageSize <= 0) {
     return NULL;
   }
@@ -403,10 +410,10 @@ void _logPrint(enum LogLevels p_LogLevel, enum PrintTypes p_PrintType, bool p_Me
     return;
   }
 
-  va_list p_Args;
-  va_start(p_Args, p_Format);
-  const char *s_Output = _formatOutput(p_LogLevel, p_PrintType, p_Meta, p_File, p_Line, p_Format, p_Args);
-  va_end(p_Args);
+  va_list s_Args;
+  va_start(s_Args, p_Format);
+  const char *s_Output = _formatOutput(p_LogLevel, p_PrintType, p_Meta, p_File, p_Line, p_Format, s_Args);
+  va_end(s_Args);
   if (s_Output == NULL) {
     return;
   }
