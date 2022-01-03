@@ -1,7 +1,7 @@
 # PRX metadata
 PROJECTNAME   := libLog
 
-# Libraries linked into the ELF.
+# Libraries linked into the ELF
 LIBS          := -lSceLibcInternal -lkernel
 
 # Directorys to include

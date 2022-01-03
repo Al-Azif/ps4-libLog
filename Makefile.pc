@@ -1,9 +1,11 @@
 # Binary name
 PROJECTNAME   := libLog
 
-# Directorys to include
-INCLUDES      := -Iinclude -I/usr/local/include
+# Libraries linked into the binary
 LIBS          := # Not currently used
+
+# Directorys to include
+INCLUDES      := -Iinclude
 
 # Additional compile flags
 ERRORFLAGS    := -Wall -Wextra -Wpedantic -Werror
