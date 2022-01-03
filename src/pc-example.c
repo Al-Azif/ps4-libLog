@@ -24,7 +24,7 @@ int main() {
     logPrintHexdump(LL_Error, test, sizeof(test));
     logPrintHexdumpUnformatted(LL_Error, test, sizeof(test));
 
-    logSocketOpen("192.168.1.4", 9023);
+    logSocketOpen("192.0.2.2", 9023);
     logSocket(LL_Error, "This is a logSocket call");
     logSocket(LL_Error, "This is a logSocket call #%i", 2);
     logSocketUnformatted(LL_Error, "This is a logSocketUnformatted call\n");
@@ -42,7 +42,7 @@ int main() {
     logFileHexdumpUnformatted(LL_Error, test, sizeof(test));
     logFileClose();
 
-    logSocketBindump(LL_Error, "192.168.1.4", 9024, test, sizeof(test));
+    logSocketBindump(LL_Error, "192.0.2.2", 9024, test, sizeof(test));
     logFileBindump(LL_Error, "./test.bin", test, sizeof(test));
 #ifdef __VALGRIND__
   }
