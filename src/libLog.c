@@ -325,7 +325,7 @@ static bool _validIPAddress(const char *p_IpAddress) {
   return true;
 }
 
-static void _send_socket(const char *s_Buffer) {
+static void _sendSocket(const char *s_Buffer) {
   if (s_Buffer == NULL) {
     return;
   }
@@ -349,7 +349,7 @@ static void _send_socket(const char *s_Buffer) {
   sendto(g_Socket, s_Buffer, strlen(s_Buffer), 0, (struct sockaddr *)&s_Servaddr, sizeof(s_Servaddr));
 }
 
-static void _write_file(const char *s_Buffer) {
+static void _writeFile(const char *s_Buffer) {
   if (s_Buffer == NULL || g_LogFilePointer == NULL) {
     return;
   }
@@ -395,9 +395,9 @@ static void _printByType(enum PrintTypes p_PrintType, const char *s_Buffer) {
     printf("sceKernelDebugOutText(0, %s);\n", s_Buffer);
 #endif
   } else if (p_PrintType == PT_Socket) {
-    _send_socket(s_Buffer);
+    _sendSocket(s_Buffer);
   } else if (p_PrintType == PT_File) {
-    _write_file(s_Buffer);
+    _writeFile(s_Buffer);
   }
 }
 
