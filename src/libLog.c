@@ -47,9 +47,9 @@ uint16_t g_SocketLogPort = 0;
 const char *g_LogFileName = "";
 FILE *g_LogFilePointer;
 
-static const char* VERSION __attribute__((used)) = "libLog v0.9.2";
-static const char* LICENSE __attribute__((used)) = "LGPL-3.0";
-static const char* URL __attribute__((used)) = "https://github.com/Al-Azif/ps4-libLog";
+static const char *VERSION __attribute__((used)) = "libLog v0.9.2";
+static const char *LICENSE __attribute__((used)) = "LGPL-3.0";
+static const char *URL __attribute__((used)) = "https://github.com/Al-Azif/ps4-libLog";
 
 static const char *_formatOutput(enum LogLevels p_LogLevel, enum PrintTypes p_PrintType, bool p_Meta, const char *p_File, int p_Line, const char *p_Format, va_list p_Args) {
   if (p_File == NULL || p_Format == NULL) {
