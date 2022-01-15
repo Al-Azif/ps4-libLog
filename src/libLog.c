@@ -22,17 +22,6 @@
 
 #include "libLog.h"
 
-#define KNRM "\x1B[0m"
-#define KRED "\x1B[31m"
-#define KGRN "\x1B[32m"
-#define KYEL "\x1B[33m"
-#define KBLU "\x1B[34m"
-#define KLBLU "\x1B[94m"
-#define KMAG "\x1B[35m"
-#define KCYN "\x1B[36m"
-#define KWHT "\x1B[37m"
-#define KGRY "\x1b[90m"
-
 // Globals
 enum LogLevels g_LogLevel = LL_All;
 enum LogLevels g_PrintLogLevel = LL_Trace;

@@ -7,6 +7,13 @@
 #define LIBLOG_H
 
 #ifdef __cplusplus
+#include <cstdio>
+#include <sstream>
+
+#ifdef __LIBLOG_PC__
+#include <iostream>
+#endif
+
 extern "C" {
 #endif
 
@@ -19,6 +26,17 @@ extern "C" {
 #ifndef __LIBLOG_PC__
 #include <orbis/libkernel.h>
 #endif
+
+#define KNRM "\x1B[0m"
+#define KRED "\x1B[31m"
+#define KGRN "\x1B[32m"
+#define KYEL "\x1B[33m"
+#define KBLU "\x1B[34m"
+#define KLBLU "\x1B[94m"
+#define KMAG "\x1B[35m"
+#define KCYN "\x1B[36m"
+#define KWHT "\x1B[37m"
+#define KGRY "\x1b[90m"
 
 enum LogLevels {
   LL_None,
@@ -93,6 +111,220 @@ enum LogLevels logSocketGetLogLevel();
 
 #ifdef __cplusplus
 }
+
+// C++ Bindings
+class SystemLog {
+public:
+  SystemLog(const char *p_File, int32_t p_Line, bool p_Format) {
+    m_Format = p_Format;
+    if (m_Format) {
+      if (logGetLogLevel() <= LL_None) {
+        m_Skip = true;
+        return;
+      }
+
+      if (logPrintGetLogLevel() > logGetLogLevel()) {
+        m_Skip = true;
+        return;
+      }
+
+      const char *s_LevelString = "None";
+      const char *s_LevelColor = KNRM;
+
+      switch (logPrintGetLogLevel()) {
+      case LL_Info:
+        s_LevelString = "Info";
+        s_LevelColor = KGRN;
+        break;
+      case LL_Warn:
+        s_LevelString = "Warn";
+        s_LevelColor = KYEL;
+        break;
+      case LL_Error:
+        s_LevelString = "Error";
+        s_LevelColor = KRED;
+        break;
+      case LL_Debug:
+        s_LevelString = "Debug";
+        s_LevelColor = KGRY;
+        break;
+      case LL_None:
+      default:
+        s_LevelString = "None";
+        s_LevelColor = KNRM;
+        break;
+      }
+      m_LogStream << s_LevelColor << "[" << s_LevelString << "] " << p_File << ":" << p_Line << ": ";
+    }
+  }
+
+  template <class T>
+  SystemLog &operator<<(const T &v) {
+    m_LogStream << v;
+    return *this;
+  }
+
+  ~SystemLog() {
+    if (m_Format) {
+      if (m_Skip) {
+        return;
+      }
+      m_LogStream << KNRM << std::endl;
+    }
+
+#ifndef __LIBLOG_PC__
+    syscall(601, 7, m_LogStream.str().c_str(), 0);
+#else
+    std::cout << m_LogStream.str();
+#endif
+    m_LogStream.str("");
+  }
+
+private:
+  bool m_Skip = false;
+  bool m_Format = false;
+  std::stringstream m_LogStream;
+};
+
+// class FileLog {
+// public:
+//   FileLog(const char *p_File, int32_t p_Line, bool p_Format) {
+//     m_Format = p_Format;
+//     if (m_Format) {
+//       if (logGetLogLevel() <= LL_None) {
+//         m_Skip = true;
+//         return;
+//       }
+
+//       if (logFileGetLogLevel() > logGetLogLevel()) {
+//         m_Skip = true;
+//         return;
+//       }
+
+//       const char *s_LevelString = "None";
+
+//       switch (logFileGetLogLevel()) {
+//       case LL_Info:
+//         s_LevelString = "Info";
+//         break;
+//       case LL_Warn:
+//         s_LevelString = "Warn";
+//         break;
+//       case LL_Error:
+//         s_LevelString = "Error";
+//         break;
+//       case LL_Debug:
+//         s_LevelString = "Debug";
+//         break;
+//       case LL_None:
+//       default:
+//         s_LevelString = "None";
+//         break;
+//       }
+//       m_LogStream << "[" << s_LevelString << "] " << p_File << ":" << p_Line << " : ";
+//     }
+//   }
+
+//   template <class T>
+//   FileLog &operator<<(const T &v) {
+//     m_LogStream << v;
+//     return *this;
+//   }
+
+//   ~FileLog() {
+//     if (!logFileGetLogFile()) {
+//       return;
+//     }
+//     if (m_Format) {
+//       if (m_Skip) {
+//         return;
+//       }
+//       m_LogStream << std::endl;
+//     }
+//     fprintf(logFileGetLogFile(), "%s", m_LogStream.str().c_str());
+//     m_LogStream.str("");
+//   }
+
+// private:
+//   bool m_Skip = false;
+//   bool m_Format = false;
+//   std::stringstream m_LogStream;
+// };
+
+// class SocketLog {
+// public:
+//   SocketLog(const char *p_File, int32_t p_Line, bool p_Format) {
+//     m_Format = p_Format;
+//     if (m_Format) {
+//       if (logGetLogLevel() <= LL_None) {
+//         m_Skip = true;
+//         return;
+//       }
+
+//       if (logSocketGetLogLevel() > logGetLogLevel()) {
+//         m_Skip = true;
+//         return;
+//       }
+//       const char *s_LevelString = "None";
+//       const char *s_LevelColor = KNRM;
+
+//       switch (logSocketGetLogLevel()) {
+//       case LL_Info:
+//         s_LevelString = "Info";
+//         s_LevelColor = KGRN;
+//         break;
+//       case LL_Warn:
+//         s_LevelString = "Warn";
+//         s_LevelColor = KYEL;
+//         break;
+//       case LL_Error:
+//         s_LevelString = "Error";
+//         s_LevelColor = KRED;
+//         break;
+//       case LL_Debug:
+//         s_LevelString = "Debug";
+//         s_LevelColor = KGRY;
+//         break;
+//       case LL_None:
+//       default:
+//         s_LevelString = "None";
+//         s_LevelColor = KNRM;
+//         break;
+//       }
+//       m_LogStream << s_LevelColor << "[" << s_LevelString << "] " << p_File << ":" << p_Line << " : ";
+//     }
+//   }
+
+//   template <class T>
+//   SocketLog &operator<<(const T &v) {
+//     m_LogStream << v;
+//     return *this;
+//   }
+
+//   ~SocketLog() {
+//     if (m_Format) {
+//       if (m_Skip) {
+//         return;
+//       }
+//       m_LogStream << KNRM << std::endl;
+//     }
+//     _sendSocket(logSocketGetIp(), logSocketGetPort(), m_LogStream.str().c_str(), m_LogStream.str().size());
+//     m_LogStream.str("");
+//   }
+
+// private:
+//   bool m_Skip = false;
+//   bool m_Format = false;
+//   std::stringstream m_LogStream;
+// };
+
+#define SYSTEMLOG SystemLog(__FILE__, __LINE__, true)
+// #define FILELOG FileLog(__FILE__, __LINE__, true)
+// #define SOCKETLOG SocketLog(__FILE__, __LINE__, true)
+#define SYSTEMLOG_UNFORMATTED SystemLog(__FILE__, __LINE__, false)
+// #define FILELOG_UNFORMATTED FileLog(__FILE__, __LINE__, false)
+// #define SOCKETLOG_UNFORMATTED SocketLog(__FILE__, __LINE__, false)
+
 #endif
 
 #endif
