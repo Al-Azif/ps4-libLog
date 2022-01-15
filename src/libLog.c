@@ -36,7 +36,7 @@ uint16_t g_SocketLogPort = 0;
 const char *g_LogFileName = "";
 FILE *g_LogFilePointer;
 
-static const char *VERSION __attribute__((used)) = "libLog v0.9.2";
+static const char *VERSION __attribute__((used)) = "libLog v0.9.3";
 static const char *LICENSE __attribute__((used)) = "LGPL-3.0";
 static const char *URL __attribute__((used)) = "https://github.com/Al-Azif/ps4-libLog";
 
