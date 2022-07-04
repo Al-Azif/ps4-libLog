@@ -381,7 +381,7 @@ static void _printByType(enum PrintTypes p_PrintType, const char *s_Buffer) {
     sceKernelDebugOutText(0, s_Buffer);
 #else
     // Not the same as `sceKernelDebugOutText` but it workings as a way to tell if it's even getting here and the data input into it
-    printf("sceKernelDebugOutText(0, %s);\n", s_Buffer);
+    printf("%s", s_Buffer);
 #endif
   } else if (p_PrintType == PT_Socket) {
     _sendSocket(s_Buffer);

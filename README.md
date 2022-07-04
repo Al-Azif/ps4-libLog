@@ -2,7 +2,7 @@
 
 ## About
 
-A simple "do it all" logging library (PRX) designed for use on the PS4 using the [OpenOrbis Toolchain]. It should be easy enough to follow along with for beginners as it doesn't do anything "fancy," most of it is just conditionals/data formatting, and it's less than 1,000 lines.
+A simple "do it all" logging library (Static or PRX) designed for use on the PS4 using the [OpenOrbis Toolchain]. It should be easy enough to follow along with for beginners as it doesn't do anything "fancy," most of it is just conditionals/data formatting, and it's less than 1,000 lines.
 
 Features include:
 
@@ -26,7 +26,7 @@ Features include:
 
 ## Road to 1.0.0
 
-- [ ] Recreate C++ stream bindings
+- [ ] Test everything better
 - [ ] Document everything w/ examples
 - [ ] Release
 

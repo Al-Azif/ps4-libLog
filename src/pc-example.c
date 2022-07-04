@@ -24,6 +24,13 @@ int main() {
     logPrintHexdump(LL_Error, test, sizeof(test));
     logPrintHexdumpUnformatted(LL_Error, test, sizeof(test));
 
+    logKernel(LL_Error, "This is a logKernel call");
+    logKernel(LL_Error, "This is a logKernel call #%i", 2);
+    logKernelUnformatted(LL_Error, "This is a logKernelUnformatted call\n");
+    logKernelUnformatted(LL_Error, "This is a logKernelUnformatted call #%i\n", 2);
+    logKernelHexdump(LL_Error, test, sizeof(test));
+    logKernelHexdumpUnformatted(LL_Error, test, sizeof(test));
+
     logSocketOpen("192.0.2.2", 9023);
     logSocket(LL_Error, "This is a logSocket call");
     logSocket(LL_Error, "This is a logSocket call #%i", 2);
@@ -44,6 +51,31 @@ int main() {
 
     logSocketBindump(LL_Error, "192.0.2.2", 9024, test, sizeof(test));
     logFileBindump(LL_Error, "./test.bin", test, sizeof(test));
+#ifdef __cplusplus
+    PRINTLOG << "This is a C++ PRINTLOG stream";
+    PRINTLOG << "This is a C++ PRINTLOG stream #" << 2;
+    PRINTLOG_UNFORMATTED << "This is a C++ PRINTLOG_UNFORMATTED stream" << std::endl;
+    PRINTLOG_UNFORMATTED << "This is a c++ PRINTLOG_UNFORMATTED stream #" << 2 << std::endl;
+
+    KERNELLOG << "This is a C++ KERNELLOG stream";
+    KERNELLOG << "This is a C++ KERNELLOG stream #" << 2;
+    KERNELLOG_UNFORMATTED << "This is a C++ KERNELLOG_UNFORMATTED stream" << std::endl;
+    KERNELLOG_UNFORMATTED << "This is a c++ KERNELLOG_UNFORMATTED stream #" << 2 <<std::endl;
+
+    logSocketOpen("192.0.2.2", 9023);
+    SOCKETLOG << "This is a C++ SOCKETLOG stream";
+    SOCKETLOG << "This is a C++ SOCKETLOG stream #" << 2;
+    SOCKETLOG_UNFORMATTED << "This is a C++ SOCKETLOG_UNFORMATTED stream" << std::endl;
+    SOCKETLOG_UNFORMATTED << "This is a C++ SOCKETLOG_UNFORMATTED stream #" << 2 << std::endl;
+    logSocketClose();
+
+    logFileOpen("./test-stream.log");
+    FILELOG << "This is a C++ FILELOG stream";
+    FILELOG << "This is a C++ FILELOG stream #" << 2;
+    FILELOG_UNFORMATTED << "This is a C++ FILELOG_UNFORMATTED stream" << std::endl;
+    FILELOG_UNFORMATTED << "This is a C++ FILELOG_UNFORMATTED stream #" << 2 << std::endl;
+    logFileClose();
+#endif
 #ifdef __VALGRIND__
   }
 #endif

@@ -9,6 +9,7 @@ strace_out
 project.log
 valgrind.log
 test.log
+test-stream.log
 test.bin
 
 # Build artifacts
