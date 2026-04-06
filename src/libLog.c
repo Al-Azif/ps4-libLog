@@ -519,7 +519,7 @@ bool logSocketOpen(const char *p_IpAddress, uint16_t p_Port) {
   return true;
 }
 
-bool logSocketClose() {
+bool logSocketClose(void) {
   if (g_Socket < 0) {
     return true;
   }
@@ -533,7 +533,7 @@ bool logSocketClose() {
   return true;
 }
 
-bool logSocketIsOpen() {
+bool logSocketIsOpen(void) {
   if (g_Socket < 0) {
     return false;
   }
@@ -541,11 +541,11 @@ bool logSocketIsOpen() {
   return true;
 }
 
-const char *logSocketGetIpAddress() {
+const char *logSocketGetIpAddress(void) {
   return g_SocketLogIpAddress;
 }
 
-uint16_t logSocketGetPort() {
+uint16_t logSocketGetPort(void) {
   return g_SocketLogPort;
 }
 
@@ -570,7 +570,7 @@ bool logFileOpen(const char *p_Path) {
   return true;
 }
 
-bool logFileClose() {
+bool logFileClose(void) {
   if (g_LogFilePointer == NULL) {
     g_LogFileName = "";
     return true;
@@ -583,7 +583,7 @@ bool logFileClose() {
   return true;
 }
 
-const char *logFileGetFilename() {
+const char *logFileGetFilename(void) {
   return g_LogFileName;
 }
 
@@ -591,7 +591,7 @@ void logSetLogLevel(enum LogLevels p_LogLevel) {
   g_LogLevel = p_LogLevel;
 }
 
-enum LogLevels logGetLogLevel() {
+enum LogLevels logGetLogLevel(void) {
   return g_LogLevel;
 }
 
@@ -599,7 +599,7 @@ void logPrintSetLogLevel(enum LogLevels p_LogLevel) {
   g_PrintLogLevel = p_LogLevel;
 }
 
-enum LogLevels logPrintGetLogLevel() {
+enum LogLevels logPrintGetLogLevel(void) {
   return g_PrintLogLevel;
 }
 
@@ -607,7 +607,7 @@ void logKernelSetLogLevel(enum LogLevels p_LogLevel) {
   g_KernelLogLevel = p_LogLevel;
 }
 
-enum LogLevels logKernelGetLogLevel() {
+enum LogLevels logKernelGetLogLevel(void) {
   return g_KernelLogLevel;
 }
 
@@ -615,7 +615,7 @@ void logFileSetLogLevel(enum LogLevels p_LogLevel) {
   g_FileLogLevel = p_LogLevel;
 }
 
-enum LogLevels logFileGetLogLevel() {
+enum LogLevels logFileGetLogLevel(void) {
   return g_FileLogLevel;
 }
 
@@ -623,6 +623,6 @@ void logSocketSetLogLevel(enum LogLevels p_LogLevel) {
   g_SocketLogLevel = p_LogLevel;
 }
 
-enum LogLevels logSocketGetLogLevel() {
+enum LogLevels logSocketGetLogLevel(void) {
   return g_SocketLogLevel;
 }
