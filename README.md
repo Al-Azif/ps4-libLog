@@ -1,39 +1,104 @@
 # libLog
 
-## About
+## Overview
 
-A simple "do it all" logging library (Static or PRX) designed for use on the PS4 using the [OpenOrbis Toolchain]. It should be easy enough to follow along with for beginners as it doesn't do anything "fancy," most of it is just conditionals/data formatting, and it's less than 1,000 lines.
+`libLog` is a lightweight, PS4-focused logging library built for the [OpenOrbis Toolchain]. It provides a flexible logging interface for static `.a` libraries or PRX modules, and is intentionally simple so it is easy to read, maintain, and adapt.
 
-Features include:
+The library is implemented in plain C99 and keeps the codebase around 1,000 lines while still offering multiple backends, log levels, formatted output, and memory dump helpers.
 
-- C99 standard, so it should be compatible with your code
-- Automatically formats output to display file and line where the log function was called from (Optional)
-- Various log levels
-  - Set log level to display on-the-fly
-- Colorized output based on log level (Optional/Where available)
-- Logs to
-  - `Print` (Simple printf)
-  - `Kernel` (Kernel log, no hooks required)
-  - `Socket` (Sent over UDP, does not wait for response or confirmation so it should not hang, but packets can be lost)
-  - `File`
-- Include a `Hexdump` for dumping arbitrary memory to a human readable format
-- Include a `Bindump` for dumping arbitrary memory (Only via `Socket` and `File`)
-  - This uses a separate socket/file setup so you won't pollute your logs with binary data
+## Key Features
+
+- C99-compatible API for easy integration with C/C++ projects
+- Supports multiple output backends:
+  - `Print` for standard printf-style output
+  - `Kernel` for PS4 kernel logs
+  - `Socket` for UDP-based remote logging
+  - `File` for persistent log files
+- Optional file/line formatting in log messages
+- Optional colorized output where terminal support is available
+- Log levels for controlling verbosity at runtime
+- `Hexdump` support for human-readable memory dumps
+- `Bindump` support for raw binary dumps via socket or file
+- PC-side debugging support through `Makefile.pc`
+
+## Why Use `libLog`?
+
+`libLog` is built for developers who want:
+
+- a simple, dependency-free logging layer for PS4 homebrew or debugging
+- easy switching between console, kernel, network, and file logging
+- a small codebase that is easy to inspect and extend
+- support for both static linking and PRX packaging
+
+## Build Instructions
+
+### PS4 / OpenOrbis
+
+Set `OO_PS4_TOOLCHAIN` to your OpenOrbis toolchain path and run:
+
+```sh
+make
+```
+
+This builds:
+
+- `libLog.prx`
+- `libLog.a`
+- `libLog_stub.so`
+
+### PC Debug/Test Build
+
+For host-side testing, use the provided PC makefile:
+
+```sh
+make -f Makefile.pc
+```
+
+This builds a local `libLog` executable that can be used to verify behavior without PS4 deployment.
+
+## Example Usage
+
+A simple example is available in `src/pc-example.c`. The library exposes functions such as:
+
+- `logPrint(...)`
+- `logKernel(...)`
+- `logSocket(...)`
+- `logFile(...)`
+- `logPrintHexdump(...)`
+- `logSocketBindump(...)`
+- `logFileBindump(...)`
+
+A typical workflow is:
+
+```c
+logPrint(LL_Info, "Hello from libLog: %s", "startup complete");
+logSocketOpen("192.0.2.2", 9023);
+logSocket(LL_Error, "Remote log test");
+logSocketClose();
+```
+
+## Testing & Development
+
+- Use `make -f Makefile.pc` to build the PC test binary
+- Use `make clean` to remove build artifacts
+- `Makefile` supports `install` for copying the static library into the OpenOrbis toolchain lib folder
+
+## Roadmap
+
+- [ ] Explore PS5 support
+- [ ] Improve test coverage for all backends
+- [ ] Add more usage examples and documentation
+- [ ] Add automatic file rotation for file logging
+- [ ] Add callback-based batch logging helpers
 
 ## Notes
 
-- This can be debugged/tested PC side with the include `Makefile.pc` file. Just run `make -f Makefile.pc` to build with it.
+- `Makefile.pc` is intended for local debugging and development on Linux/macOS
+- Socket logging is fire-and-forget; packets may be dropped if the network is unreliable
+- File and bindump output are separated so raw binary data does not pollute text logs
 
-## Road to 1.0.0
+## License
 
-- [ ] Test everything better
-- [ ] Document everything w/ examples
-- [ ] Release
+Released under the terms of the project [license](LICENSE).
 
-## 1.0.0+ Plans
-
-- [ ] System for callbacks to log multiple predefined logs with one log function call
-- [ ] Automatic log rotation for logging to files
-
-[//]: #
-  [OpenOrbis Toolchain]: <https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain>
+[OpenOrbis Toolchain]: <https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain>

@@ -1,5 +1,5 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 
 // License: LGPL-3.0
 
@@ -10,7 +10,7 @@
 
 #include "libLog.h"
 
-int main() {
+int main(void) {
   char test[0x20];
   memset(test, 0xCC, sizeof(test));
 

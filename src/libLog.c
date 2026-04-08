@@ -1,5 +1,5 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 
 // License: LGPL-3.0
 
@@ -30,10 +30,10 @@ enum LogLevels g_SocketLogLevel = LL_Trace;
 enum LogLevels g_FileLogLevel = LL_Trace;
 
 int g_Socket = -1;
-const char *g_SocketLogIpAddress = "000.000.000.000";
+char *g_SocketLogIpAddress = NULL;
 uint16_t g_SocketLogPort = 0;
 
-const char *g_LogFileName = "";
+char *g_LogFileName = NULL;
 FILE *g_LogFilePointer;
 
 static const char *VERSION __attribute__((used)) = "libLog v0.9.3";
@@ -47,7 +47,7 @@ static const char *_formatOutput(enum LogLevels p_LogLevel, enum PrintTypes p_Pr
 
   va_list s_ArgSize;
   va_copy(s_ArgSize, p_Args);
-  size_t s_MessageSize = vsnprintf(NULL, 0, p_Format, s_ArgSize);
+  int s_MessageSize = vsnprintf(NULL, 0, p_Format, s_ArgSize);
   va_end(s_ArgSize);
   if (s_MessageSize <= 0) {
     return NULL;
@@ -106,8 +106,9 @@ static const char *_formatOutput(enum LogLevels p_LogLevel, enum PrintTypes p_Pr
     s_LevelResetColor = "\0";
   }
 
-  size_t s_OutputSize = snprintf(NULL, 0, "%s[%-5s] %s:%d: %s%s\n", s_LevelColor, s_LevelString, p_File, p_Line, s_Message, s_LevelResetColor);
+  int s_OutputSize = snprintf(NULL, 0, "%s[%-5s] %s:%d: %s%s\n", s_LevelColor, s_LevelString, p_File, p_Line, s_Message, s_LevelResetColor);
   if (s_OutputSize <= 0) {
+    free((void *)s_Message);
     return NULL;
   }
   s_OutputSize++; // Null terminator
@@ -278,6 +279,9 @@ static bool _validIPAddress(const char *p_IpAddress) {
   }
 
   char *s_TempIp = strdup(p_IpAddress);
+  if (s_TempIp == NULL) {
+    return false;
+  }
 
   int s_Dots = 0;
 
@@ -314,7 +318,7 @@ static bool _validIPAddress(const char *p_IpAddress) {
   return true;
 }
 
-static void _sendSocket(const char *s_Buffer) {
+void _sendSocket(const char *s_Buffer) {
   if (s_Buffer == NULL) {
     return;
   }
@@ -323,7 +327,7 @@ static void _sendSocket(const char *s_Buffer) {
     return;
   }
 
-  if (!_validIPAddress(g_SocketLogIpAddress) || g_SocketLogPort == 0) {
+  if (g_SocketLogIpAddress == NULL || !_validIPAddress(g_SocketLogIpAddress) || g_SocketLogPort == 0) {
     return;
   }
 
@@ -366,7 +370,7 @@ static bool _checkLogLevelByType(enum LogLevels p_LogLevel, enum PrintTypes p_Pr
     break;
   }
 
-  if (g_LogLevel >= g_PrintLogLevel && s_TypeLogLevel >= p_LogLevel) {
+  if (g_LogLevel >= p_LogLevel && s_TypeLogLevel >= p_LogLevel) {
     return true;
   }
 
@@ -513,7 +517,13 @@ bool logSocketOpen(const char *p_IpAddress, uint16_t p_Port) {
     }
   }
 
-  g_SocketLogIpAddress = p_IpAddress;
+  free(g_SocketLogIpAddress);
+  g_SocketLogIpAddress = strdup(p_IpAddress);
+  if (g_SocketLogIpAddress == NULL) {
+    close(g_Socket);
+    g_Socket = -1;
+    return false;
+  }
   g_SocketLogPort = p_Port;
 
   return true;
@@ -530,6 +540,10 @@ bool logSocketClose(void) {
 
   g_Socket = -1;
 
+  free(g_SocketLogIpAddress);
+  g_SocketLogIpAddress = NULL;
+  g_SocketLogPort = 0;
+
   return true;
 }
 
@@ -542,7 +556,7 @@ bool logSocketIsOpen(void) {
 }
 
 const char *logSocketGetIpAddress(void) {
-  return g_SocketLogIpAddress;
+  return g_SocketLogIpAddress != NULL ? g_SocketLogIpAddress : "";
 }
 
 uint16_t logSocketGetPort(void) {
@@ -565,26 +579,34 @@ bool logFileOpen(const char *p_Path) {
     return false;
   }
 
-  g_LogFileName = p_Path;
+  free(g_LogFileName);
+  g_LogFileName = strdup(p_Path);
+  if (g_LogFileName == NULL) {
+    fclose(g_LogFilePointer);
+    g_LogFilePointer = NULL;
+    return false;
+  }
 
   return true;
 }
 
 bool logFileClose(void) {
   if (g_LogFilePointer == NULL) {
-    g_LogFileName = "";
+    free(g_LogFileName);
+    g_LogFileName = NULL;
     return true;
   }
 
   fclose(g_LogFilePointer);
   g_LogFilePointer = NULL;
-  g_LogFileName = "";
+  free(g_LogFileName);
+  g_LogFileName = NULL;
 
   return true;
 }
 
 const char *logFileGetFilename(void) {
-  return g_LogFileName;
+  return g_LogFileName != NULL ? g_LogFileName : "";
 }
 
 void logSetLogLevel(enum LogLevels p_LogLevel) {

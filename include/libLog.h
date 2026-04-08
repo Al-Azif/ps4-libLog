@@ -1,5 +1,5 @@
 // This is an open source non-commercial project. Dear PVS-Studio, please check it.
-// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: http://www.viva64.com
+// PVS-Studio Static Code Analyzer for C, C++, C#, and Java: https://pvs-studio.com
 
 // License: LGPL-3.0
 
@@ -11,9 +11,7 @@
 #include <ostream>
 #include <sstream>
 
-#ifdef __LIBLOG_PC__
 #include <iostream>
-#endif
 
 extern "C" {
 #endif
@@ -113,9 +111,10 @@ enum LogLevels logSocketGetLogLevel(void);
 #ifdef __cplusplus
 }
 
+extern "C" {
 extern FILE *g_LogFilePointer;
-
 void _sendSocket(const char *s_Buffer);
+}
 
 // C++ Bindings
 
@@ -123,14 +122,13 @@ class PrintLog {
 public:
   PrintLog(const char *p_File, int32_t p_Line, bool p_Format) {
     m_Format = p_Format;
-    if (m_Format) {
-      if (logGetLogLevel() <= LL_None) {
-        m_Skip = true;
-        return;
-      }
 
-      if (logPrintGetLogLevel() > logGetLogLevel()) {
-        m_Skip = true;
+    if (logGetLogLevel() <= LL_None || logPrintGetLogLevel() > logGetLogLevel()) {
+      m_Skip = true;
+    }
+
+    if (m_Format) {
+      if (m_Skip) {
         return;
       }
 
@@ -138,6 +136,10 @@ public:
       const char *s_LevelColor = KNRM;
 
       switch (logPrintGetLogLevel()) {
+      case LL_Fatal:
+        s_LevelString = "Fatal";
+        s_LevelColor = KMAG;
+        break;
       case LL_Info:
         s_LevelString = "Info";
         s_LevelColor = KGRN;
@@ -153,6 +155,10 @@ public:
       case LL_Debug:
         s_LevelString = "Debug";
         s_LevelColor = KGRY;
+        break;
+      case LL_Trace:
+        s_LevelString = "Trace";
+        s_LevelColor = KLBLU;
         break;
       case LL_None:
       default:
@@ -176,10 +182,11 @@ public:
   }
 
   ~PrintLog() {
+    if (m_Skip) {
+      return;
+    }
+
     if (m_Format) {
-      if (m_Skip) {
-        return;
-      }
       m_LogStream << KNRM << std::endl;
     }
 
@@ -197,14 +204,13 @@ class KernelLog {
 public:
   KernelLog(const char *p_File, int32_t p_Line, bool p_Format) {
     m_Format = p_Format;
-    if (m_Format) {
-      if (logGetLogLevel() <= LL_None) {
-        m_Skip = true;
-        return;
-      }
 
-      if (logKernelGetLogLevel() > logGetLogLevel()) {
-        m_Skip = true;
+    if (logGetLogLevel() <= LL_None || logKernelGetLogLevel() > logGetLogLevel()) {
+      m_Skip = true;
+    }
+
+    if (m_Format) {
+      if (m_Skip) {
         return;
       }
 
@@ -212,6 +218,10 @@ public:
       const char *s_LevelColor = KNRM;
 
       switch (logKernelGetLogLevel()) {
+      case LL_Fatal:
+        s_LevelString = "Fatal";
+        s_LevelColor = KMAG;
+        break;
       case LL_Info:
         s_LevelString = "Info";
         s_LevelColor = KGRN;
@@ -227,6 +237,10 @@ public:
       case LL_Debug:
         s_LevelString = "Debug";
         s_LevelColor = KGRY;
+        break;
+      case LL_Trace:
+        s_LevelString = "Trace";
+        s_LevelColor = KLBLU;
         break;
       case LL_None:
       default:
@@ -250,17 +264,18 @@ public:
   }
 
   ~KernelLog() {
+    if (m_Skip) {
+      return;
+    }
+
     if (m_Format) {
-      if (m_Skip) {
-        return;
-      }
       m_LogStream << KNRM << std::endl;
     }
 
 #ifndef __LIBLOG_PC__
     sceKernelDebugOutText(0, m_LogStream.str().c_str());
 #else
-    // Not the same as `sceKernelDebugOutText` but it workings as a way to tell if it's even getting here and the data input into it
+    // Not the same as `sceKernelDebugOutText` but it works as a way to tell if it's even getting here and the data input into it
     std::cout << m_LogStream.str();
 #endif
     m_LogStream.str("");
@@ -276,14 +291,13 @@ class SocketLog {
 public:
   SocketLog(const char *p_File, int32_t p_Line, bool p_Format) {
     m_Format = p_Format;
-    if (m_Format) {
-      if (logGetLogLevel() <= LL_None) {
-        m_Skip = true;
-        return;
-      }
 
-      if (logSocketGetLogLevel() > logGetLogLevel()) {
-        m_Skip = true;
+    if (logGetLogLevel() <= LL_None || logSocketGetLogLevel() > logGetLogLevel()) {
+      m_Skip = true;
+    }
+
+    if (m_Format) {
+      if (m_Skip) {
         return;
       }
 
@@ -291,6 +305,10 @@ public:
       const char *s_LevelColor = KNRM;
 
       switch (logSocketGetLogLevel()) {
+      case LL_Fatal:
+        s_LevelString = "Fatal";
+        s_LevelColor = KMAG;
+        break;
       case LL_Info:
         s_LevelString = "Info";
         s_LevelColor = KGRN;
@@ -306,6 +324,10 @@ public:
       case LL_Debug:
         s_LevelString = "Debug";
         s_LevelColor = KGRY;
+        break;
+      case LL_Trace:
+        s_LevelString = "Trace";
+        s_LevelColor = KLBLU;
         break;
       case LL_None:
       default:
@@ -329,14 +351,15 @@ public:
   }
 
   ~SocketLog() {
+    if (m_Skip) {
+      return;
+    }
+
     if (m_Format) {
-      if (m_Skip) {
-        return;
-      }
       m_LogStream << KNRM << std::endl;
     }
 
-    //TODO: _sendSocket(m_LogStream.str().c_str());
+    _sendSocket(m_LogStream.str().c_str());
     m_LogStream.str("");
   }
 
@@ -350,20 +373,22 @@ class FileLog {
 public:
   FileLog(const char *p_File, int32_t p_Line, bool p_Format) {
     m_Format = p_Format;
-    if (m_Format) {
-      if (logGetLogLevel() <= LL_None) {
-        m_Skip = true;
-        return;
-      }
 
-      if (logFileGetLogLevel() > logGetLogLevel()) {
-        m_Skip = true;
+    if (logGetLogLevel() <= LL_None || logFileGetLogLevel() > logGetLogLevel()) {
+      m_Skip = true;
+    }
+
+    if (m_Format) {
+      if (m_Skip) {
         return;
       }
 
       const char *s_LevelString = "None";
 
       switch (logFileGetLogLevel()) {
+      case LL_Fatal:
+        s_LevelString = "Fatal";
+        break;
       case LL_Info:
         s_LevelString = "Info";
         break;
@@ -375,6 +400,9 @@ public:
         break;
       case LL_Debug:
         s_LevelString = "Debug";
+        break;
+      case LL_Trace:
+        s_LevelString = "Trace";
         break;
       case LL_None:
       default:
@@ -397,10 +425,11 @@ public:
   }
 
   ~FileLog() {
+    if (m_Skip) {
+      return;
+    }
+
     if (m_Format) {
-      if (m_Skip) {
-        return;
-      }
       m_LogStream << std::endl;
     }
 
