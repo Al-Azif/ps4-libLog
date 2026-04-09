@@ -40,6 +40,21 @@ static const char *VERSION __attribute__((used)) = "libLog v0.9.3";
 static const char *LICENSE __attribute__((used)) = "LGPL-3.0";
 static const char *URL __attribute__((used)) = "https://github.com/Al-Azif/ps4-libLog";
 
+static const char *_normalizeFilePath(const char *p_File) {
+  if (p_File == NULL) {
+    return NULL;
+  }
+
+#ifdef LOG_SOURCE_ROOT
+  size_t s_PrefixLen = strlen(LOG_SOURCE_ROOT);
+  if (s_PrefixLen > 0 && strncmp(p_File, LOG_SOURCE_ROOT, s_PrefixLen) == 0) {
+    return p_File + s_PrefixLen;
+  }
+#endif
+
+  return p_File;
+}
+
 static const char *_formatOutput(enum LogLevels p_LogLevel, enum PrintTypes p_PrintType, bool p_Meta, const char *p_File, int p_Line, const char *p_Format, va_list p_Args) {
   if (p_File == NULL || p_Format == NULL) {
     return NULL;
@@ -106,7 +121,8 @@ static const char *_formatOutput(enum LogLevels p_LogLevel, enum PrintTypes p_Pr
     s_LevelResetColor = "\0";
   }
 
-  int s_OutputSize = snprintf(NULL, 0, "%s[%-5s] %s:%d: %s%s\n", s_LevelColor, s_LevelString, p_File, p_Line, s_Message, s_LevelResetColor);
+  const char *s_File = _normalizeFilePath(p_File);
+  int s_OutputSize = snprintf(NULL, 0, "%s[%-5s] %s:%d: %s%s\n", s_LevelColor, s_LevelString, s_File, p_Line, s_Message, s_LevelResetColor);
   if (s_OutputSize <= 0) {
     free((void *)s_Message);
     return NULL;
@@ -119,7 +135,7 @@ static const char *_formatOutput(enum LogLevels p_LogLevel, enum PrintTypes p_Pr
     return NULL;
   }
 
-  snprintf(s_Output, s_OutputSize, "%s[%-5s] %s:%d: %s%s\n", s_LevelColor, s_LevelString, p_File, p_Line, s_Message, s_LevelResetColor);
+  snprintf(s_Output, s_OutputSize, "%s[%-5s] %s:%d: %s%s\n", s_LevelColor, s_LevelString, s_File, p_Line, s_Message, s_LevelResetColor);
   free((void *)s_Message);
 
   return s_Output;
