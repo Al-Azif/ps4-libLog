@@ -176,7 +176,7 @@ public:
     return *this;
   }
 
-  PrintLog &operator<<(std::ostream&(*f)(std::ostream&)) {
+  PrintLog &operator<<(std::ostream&(*const f)(std::ostream&)) {
     m_LogStream << f;
     return *this;
   }
@@ -258,7 +258,7 @@ public:
     return *this;
   }
 
-  KernelLog &operator<<(std::ostream&(*f)(std::ostream&)) {
+  KernelLog &operator<<(std::ostream&(*const f)(std::ostream&)) {
     m_LogStream << f;
     return *this;
   }
@@ -345,7 +345,7 @@ public:
     return *this;
   }
 
-  SocketLog &operator<<(std::ostream&(*f)(std::ostream&)) {
+  SocketLog &operator<<(std::ostream&(*const f)(std::ostream&)) {
     m_LogStream << f;
     return *this;
   }
@@ -419,7 +419,7 @@ public:
     return *this;
   }
 
-  FileLog &operator<<(std::ostream&(*f)(std::ostream&)) {
+  FileLog &operator<<(std::ostream&(*const f)(std::ostream&)) {
     m_LogStream << f;
     return *this;
   }
