@@ -2,7 +2,7 @@
 
 ## Overview
 
-`libLog` is a lightweight, PS4-focused logging library built for the [OpenOrbis Toolchain]. It provides a flexible logging interface for static `.a` libraries or PRX modules, and is intentionally simple so it is easy to read, maintain, and adapt.
+`libLog` is a lightweight, PS4/PS5-focused logging library built for the [OpenOrbis Toolchain]. It provides a flexible logging interface for static `.a` libraries or PRX modules, and is intentionally simple so it is easy to read, maintain, and adapt.
 
 The library is implemented in plain C99 and keeps the codebase around 1,000 lines while still offering multiple backends, log levels, formatted output, and memory dump helpers.
 
@@ -11,7 +11,7 @@ The library is implemented in plain C99 and keeps the codebase around 1,000 line
 - C99-compatible API for easy integration with C/C++ projects
 - Supports multiple output backends:
   - `Print` for standard printf-style output
-  - `Kernel` for PS4 kernel logs
+  - `Kernel` for PS4/PS5 kernel logs
   - `Socket` for UDP-based remote logging
   - `File` for persistent log files
 - Optional file/line formatting in log messages
@@ -25,7 +25,7 @@ The library is implemented in plain C99 and keeps the codebase around 1,000 line
 
 `libLog` is built for developers who want:
 
-- a simple, dependency-free logging layer for PS4 homebrew or debugging
+- a simple, dependency-free logging layer for PS4/PS5 homebrew or debugging
 - easy switching between console, kernel, network, and file logging
 - a small codebase that is easy to inspect and extend
 - support for both static linking and PRX packaging
@@ -54,7 +54,7 @@ For host-side testing, use the provided PC makefile:
 make -f Makefile.pc
 ```
 
-This builds a local `libLog` executable that can be used to verify behavior without PS4 deployment.
+This builds a local `libLog` executable that can be used to verify behavior without PS4/PS5 deployment.
 
 ## Example Usage
 
@@ -85,7 +85,6 @@ logSocketClose();
 
 ## Roadmap
 
-- [ ] Explore PS5 support
 - [ ] Improve test coverage for all backends
 - [ ] Add more usage examples and documentation
 - [ ] Add automatic file rotation for file logging
